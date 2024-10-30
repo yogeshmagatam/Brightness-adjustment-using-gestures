@@ -40,7 +40,7 @@ while True:
 
             # Adjust brightness (replace with appropriate command for your OS)
             # Example: For Windows, you might use pyautogui to simulate keystrokes
-            pyautogui.hotkey('F5', 'F6')  
+            pyautogui.hotkey('fn','F5', 'F6')  
 
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS)
 
