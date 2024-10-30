@@ -2,17 +2,17 @@ import cv2
 import mediapipe as mp
 import pyautogui
 
-# Initialize MediaPipe hands module
+# Initialize MediaPipe Hands
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7)
+hands = mp_hands.Hands()
 mp_draw = mp.solutions.drawing_utils
 
-# Function to adjust brightness based on gesture
-def adjust_brightness(index_finger_tip_y, middle_finger_tip_y):
-    if index_finger_tip_y < middle_finger_tip_y:
-        pyautogui.press('volumeup')
-    elif index_finger_tip_y > middle_finger_tip_y:
-        pyautogui.press('volumedown')
+# Function to calculate distance between two points
+def calculate_distance(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    distance = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+    return distance
 
 # Video capture
 cap = cv2.VideoCapture(0)
@@ -22,7 +22,6 @@ while True:
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(imgRGB)
 
-    # Hand landmark detection
     if results.multi_hand_landmarks:
         for handLms in results.multi_hand_landmarks:
             lmList = []
@@ -31,20 +30,19 @@ while True:
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 lmList.append([id, cx, cy])
 
-            # Extract index finger tip and middle finger tip
-            index_finger_tip_y = lmList[8][2]
-            middle_finger_tip_y = lmList[12][2]
+            # Calculate distance between thumb tip and index fingertip
+            thumb_tip = lmList[4]
+            index_finger_tip = lmList[8]
+            distance = calculate_distance(thumb_tip[1:], index_finger_tip[1:])
 
-            # Adjust brightness based on gesture
-            adjust_brightness(index_finger_tip_y, middle_finger_tip_y)
+            # Map distance to brightness level (adjust as needed)
+            brightness_level = int(distance * 100 / 200)  # Assuming maximum distance is 200
 
-            # Draw landmarks
+            # Adjust brightness (replace with appropriate command for your OS)
+            # Example: For Windows, you might use pyautogui to simulate keystrokes
+            pyautogui.hotkey('F5', 'F6')  
+
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS)
 
     cv2.imshow("Image", img)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
+    cv2.waitKey(1)
